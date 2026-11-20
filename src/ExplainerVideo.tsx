@@ -1,130 +1,133 @@
 import React from 'react';
 import { AbsoluteFill, Audio, staticFile, useCurrentFrame, useVideoConfig, spring } from 'remotion';
+import { CartoonSkyAndGround, TempleVector, LabelBadge } from './AbuSimbelScenes';
 
 export const FPS = 30;
 export const DURATION_IN_FRAMES = 1560;
+
+const CAPTIONS = [
+  { start: 0, end: 110, normal: 'تخيل صحيت الصبح', highlight: 'ولقيت مديرك بيقولك:' },
+  { start: 110, end: 240, normal: 'مية السد العالي', highlight: 'هتغرق معبد أبو سمبل!' },
+  { start: 240, end: 370, normal: 'لو إنت المهندس', highlight: 'هتربطه بونش وترفعه؟' },
+  { start: 370, end: 510, normal: 'ده منحوت جوه الجبل،', highlight: 'كله هيقع فوق دماغك!' },
+  { start: 510, end: 660, normal: 'المهندسين سنة 1964', highlight: 'فكروا في فكرة مجنونة..' },
+  { start: 660, end: 810, normal: 'قطعوا المعبد بالمناشير', highlight: 'بالظبط 1036 بلوك!' },
+  { start: 810, end: 945, normal: 'ورقّموا كل حجر', highlight: 'زي لعبة البازل بالظبط،' },
+  { start: 945, end: 1080, normal: 'ورفعوهم بالراحة', highlight: '65 متر لفوق!' },
+  { start: 1080, end: 1230, normal: 'وعشان ميبانش متركب،', highlight: 'بنوا قبة خرسانية عملاقة' },
+  { start: 1230, end: 1380, normal: 'وردموها بالرمل عشان يبان', highlight: 'جوه الجبل الطبيعي!' },
+  { start: 1380, end: 1470, normal: 'وبكده أنقذوا', highlight: 'التاريخ من الغرق..' },
+  { start: 1470, end: 1560, normal: 'لو كنت مكانهم', highlight: 'كنت هتحلها إزاي؟' },
+];
 
 export const ExplainerVideo: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const waterRise = Math.min(65, Math.max(20, 20 + (frame / 220) * 45));
-  const cranePull = spring({ frame: frame - 270, fps, config: { damping: 8, stiffness: 80 } });
-  const cutProgress = Math.min(1, Math.max(0, (frame - 530) / 150));
-  const liftHeight = Math.min(0, Math.max(-220, -((frame - 830) / 190) * 220));
-  const domeScale = spring({ frame: frame - 1110, fps, config: { damping: 12 } });
-  const ctaPop = spring({ frame: frame - 1400, fps, config: { damping: 10 } });
+  const waterHeight = Math.min(480, Math.max(120, 120 + (frame / 230) * 340));
+  const shake = frame >= 360 && frame < 510 ? Math.sin(frame * 1.2) * 8 : 0;
+  const cutGap = Math.min(28, Math.max(0, ((frame - 640) / 140) * 28));
+  const liftY = Math.min(0, Math.max(-240, -((frame - 930) / 140) * 240));
+  const domePop = spring({ frame: frame - 1100, fps, config: { damping: 12 } });
+
+  const currentCap = CAPTIONS.find((c) => frame >= c.start && frame < c.end) || CAPTIONS[CAPTIONS.length - 1];
+
+  let topBanner = 'لو إنت المهندس...';
+  let bannerBg = '#FACC15';
+  if (frame >= 240 && frame < 510) { topBanner = 'المشكلة؟'; bannerBg = '#F87171'; }
+  else if (frame >= 510 && frame < 1080) { topBanner = 'الحل: تقطيع البازل'; bannerBg = '#34D399'; }
+  else if (frame >= 1080 && frame < 1380) { topBanner = 'الخدعة السرية'; bannerBg = '#60A5FA'; }
+  else if (frame >= 1380) { topBanner = 'عايز تعرف أكتر؟'; bannerBg = '#FACC15'; }
 
   return (
-    <AbsoluteFill style={{ background: 'linear-gradient(180deg, #0F172A 0%, #1E293B 55%, #78350F 100%)', fontFamily: 'Cairo, Tahoma, Arial, sans-serif', color: '#FFF', direction: 'rtl', overflow: 'hidden' }}>
+    <AbsoluteFill style={{ backgroundColor: '#111827', fontFamily: 'Cairo, Tahoma, Arial, sans-serif', direction: 'rtl' }}>
       <Audio src={staticFile('abusimbel.mp3')} volume={1} />
 
-      <div style={{ position: 'absolute', top: 90, left: 50, right: 50, textAlign: 'center', backgroundColor: '#F59E0B', color: '#0F172A', padding: '20px 30px', borderRadius: 50, fontSize: 42, fontWeight: 'bold', zIndex: 20 }}>
-        لو إنت المهندس 👷‍♂️ | إنقاذ معبد أبو سمبل
+      {/* الجزء العلوي الكرتوني (76% من الشاشة) */}
+      <div style={{ position: 'relative', width: '100%', height: 1460, overflow: 'hidden', borderBottom: '8px solid #0F172A' }}>
+        <CartoonSkyAndGround frame={frame} />
+
+        {/* الكبسولة العلوية */}
+        <div style={{ position: 'absolute', top: 90, left: '50%', transform: 'translateX(-50%)', backgroundColor: bannerBg, color: '#0F172A', padding: '16px 54px', borderRadius: 50, border: '5px solid #0F172A', fontSize: 44, fontWeight: 900, boxShadow: '0 8px 0 #0F172A', zIndex: 30, whiteSpace: 'nowrap' }}>
+          {topBanner}
+        </div>
+
+        {/* المشهد 1: ارتفاع المياه */}
+        {frame < 240 && (
+          <>
+            <TempleVector x={310} y={880} scale={1.1} />
+            <LabelBadge text="معبد أبو سمبل" x={430} y={810} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: waterHeight, backgroundColor: 'rgba(2, 132, 199, 0.85)', borderTop: '6px solid #0F172A' }}>
+              <LabelBadge text="مياه السد العالي" bg="#38BDF8" x={120} y={30} />
+            </div>
+          </>
+        )}
+
+        {/* المشهد 2: الونش الفاشل */}
+        {frame >= 240 && frame < 510 && (
+          <div style={{ transform: `translateX(${shake}px)` }}>
+            <TempleVector x={310} y={880} scale={1.1} />
+            {/* ونش كرتوني */}
+            <svg width="300" height="240" viewBox="0 0 300 240" style={{ position: 'absolute', left: 390, top: 480 }}>
+              <rect x="80" y="60" width="140" height="90" rx="16" fill="#F97316" stroke="#0F172A" strokeWidth="5" />
+              <circle cx="120" cy="100" r="14" fill="#FFF" stroke="#0F172A" strokeWidth="4" />
+              <circle cx="180" cy="100" r="14" fill="#FFF" stroke="#0F172A" strokeWidth="4" />
+              <line x1="150" y1="150" x2="150" y2="240" stroke="#0F172A" strokeWidth="8" />
+            </svg>
+            <LabelBadge text="منحوت جوه الجبل!" bg="#FCA5A5" x={390} y={810} />
+          </div>
+        )}
+
+        {/* المشهد 3: التقطيع إلى 1036 بلوك */}
+        {frame >= 510 && frame < 810 && (
+          <>
+            <LabelBadge text="1,036 بلوك حجري" bg="#FACC15" x={390} y={340} />
+            <div style={{ position: 'absolute', top: 470, left: 210, display: 'grid', gridTemplateColumns: 'repeat(3, 200px)', gap: 12 + cutGap }}>
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div key={i} style={{ width: 200, height: 150, backgroundColor: '#D97706', border: '5px solid #0F172A', borderRadius: 16, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: 38, fontWeight: 900, color: '#FFF' }}>
+                  #{100 + i * 115}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* المشهد 4: الرفع 65 متر */}
+        {frame >= 810 && frame < 1080 && (
+          <>
+            <LabelBadge text="رفع +65 متر لأعلى" bg="#34D399" x={380} y={340} />
+            <div style={{ transform: `translateY(${liftY}px)` }}>
+              <TempleVector x={310} y={880} scale={1.1} />
+            </div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 260, backgroundColor: 'rgba(2, 132, 199, 0.85)', borderTop: '6px solid #0F172A' }} />
+          </>
+        )}
+
+        {/* المشهد 5: القبة الخرسانية */}
+        {frame >= 1080 && frame < 1380 && (
+          <>
+            <LabelBadge text="قبة خرسانية مفرغة" bg="#93C5FD" x={380} y={340} />
+            <div style={{ position: 'absolute', left: 220, top: 620, width: 640, height: 420, backgroundColor: '#94A3B8', borderTopLeftRadius: 320, borderTopRightRadius: 320, border: '6px solid #0F172A', transform: `scale(${domePop})` }} />
+            <TempleVector x={310} y={880} scale={1.1} />
+          </>
+        )}
+
+        {/* المشهد 6: الخاتمة */}
+        {frame >= 1380 && (
+          <>
+            <TempleVector x={310} y={880} scale={1.1} />
+            <LabelBadge text="اكتب رأيك في الكومنتات 👇" bg="#FACC15" x={330} y={480} />
+          </>
+        )}
       </div>
 
-      {frame < 240 && (
-        <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ position: 'absolute', top: 250, left: 40, right: 40, fontSize: 58, fontWeight: 'bold', textAlign: 'center', backgroundColor: 'rgba(0,0,0,0.65)', padding: '24px 36px', borderRadius: 24 }}>
-            معبد أبو سمبل مهدد بالغرق بالكامل! 😱
-          </div>
-          <svg width="850" height="550" viewBox="0 0 700 450" style={{ marginTop: 100 }}>
-            <polygon points="50,420 220,80 480,80 650,420" fill="#B45309" />
-            <rect x="240" y="180" width="220" height="240" fill="#D97706" rx="10" />
-            <rect x="260" y="230" width="32" height="140" fill="#92400E" rx="6" />
-            <rect x="305" y="230" width="32" height="140" fill="#92400E" rx="6" />
-            <rect x="363" y="230" width="32" height="140" fill="#92400E" rx="6" />
-            <rect x="408" y="230" width="32" height="140" fill="#92400E" rx="6" />
-            <rect x="332" y="310" width="36" height="110" fill="#451A03" />
-          </svg>
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: `${waterRise}%`, backgroundColor: 'rgba(14, 165, 233, 0.82)', borderTop: '10px solid #38BDF8', display: 'flex', justifyContent: 'center', paddingTop: 35 }}>
-            <span style={{ fontSize: 48, fontWeight: 'bold', color: '#E0F2FE' }}>🌊 ارتفاع مياه السد العالي!</span>
-          </div>
-        </AbsoluteFill>
-      )}
-
-      {frame >= 240 && frame < 510 && (
-        <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ position: 'absolute', top: 260, left: 40, right: 40, fontSize: 60, fontWeight: 'bold', textAlign: 'center', color: '#FCA5A5' }}>
-            تربطه بونش وترفعه؟<br />مستحيل! ❌
-          </div>
-          <div style={{ transform: `rotate(${Math.sin(frame * 0.8) * (cranePull * 4)}deg)`, marginTop: 220, textAlign: 'center' }}>
-            <div style={{ fontSize: 160 }}>🏗️</div>
-            <div style={{ width: 12, height: 140, backgroundColor: '#EF4444', margin: '0 auto' }} />
-            <div style={{ width: 560, height: 300, backgroundColor: '#B45309', borderRadius: 30, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: 48, fontWeight: 'bold', border: '6px dashed #EF4444', padding: 20 }}>
-              ⛰️ منحوت جوه الجبل نفسه!
-            </div>
-          </div>
-        </AbsoluteFill>
-      )}
-
-      {frame >= 510 && frame < 810 && (
-        <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ position: 'absolute', top: 250, left: 40, right: 40, fontSize: 58, fontWeight: 'bold', textAlign: 'center', color: '#FDE047' }}>
-            الحل المجنون (1964):<br />تقطيع الجبل بالمناشير! 🪚
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 210px)', gap: `${14 + cutProgress * 30}px`, marginTop: 140 }}>
-            {Array.from({ length: 12 }).map((_, idx) => (
-              <div key={idx} style={{ width: 210, height: 140, backgroundColor: '#D97706', border: '4px solid #FEF08A', borderRadius: 16, display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: 38, fontWeight: 'bold', transform: `translateY(${(idx % 2 === 0 ? -1 : 1) * cutProgress * 18}px)` }}>
-                #{(idx + 1) * 86}
-              </div>
-            ))}
-          </div>
-          <div style={{ position: 'absolute', bottom: 180, left: 50, right: 50, textAlign: 'center', fontSize: 52, fontWeight: 'bold', backgroundColor: '#0F172A', padding: '24px 36px', borderRadius: 24, border: '3px solid #F59E0B' }}>
-            1,036 بلوك حجري بالظبط!
-          </div>
-        </AbsoluteFill>
-      )}
-
-      {frame >= 810 && frame < 1080 && (
-        <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ position: 'absolute', top: 250, left: 40, right: 40, fontSize: 58, fontWeight: 'bold', textAlign: 'center', color: '#34D399' }}>
-            ترقيم مثل البازل<br />ورفع 65 متر لأعلى ⬆️
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 60, marginTop: 320 }}>
-            <div style={{ transform: `translateY(${liftHeight}px)`, backgroundColor: '#D97706', padding: '50px 80px', borderRadius: 30, border: '6px solid #34D399', textAlign: 'center' }}>
-              <div style={{ fontSize: 100 }}>🏛️</div>
-              <div style={{ fontSize: 48, fontWeight: 'bold', marginTop: 15 }}>+65 متر أعلى الجبل</div>
-            </div>
-            <div style={{ fontSize: 48, fontWeight: 'bold', lineHeight: 1.7, textAlign: 'center', backgroundColor: 'rgba(15, 23, 42, 0.85)', padding: '24px 44px', borderRadius: 24 }}>
-              🧩 كل حجر برقم وكود<br />✅ بعيد تماماً عن المياه
-            </div>
-          </div>
-        </AbsoluteFill>
-      )}
-
-      {frame >= 1080 && frame < 1380 && (
-        <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ position: 'absolute', top: 250, left: 40, right: 40, fontSize: 58, fontWeight: 'bold', textAlign: 'center', color: '#60A5FA' }}>
-            الخدعة السرية:<br />قبة خرسانية عملاقة! 🏗️
-          </div>
-          <div style={{ transform: `scale(${domeScale})`, marginTop: 180, position: 'relative', width: 820, height: 440, display: 'flex', justifyContent: 'center', alignItems: 'flex-end' }}>
-            <div style={{ position: 'absolute', width: 780, height: 390, backgroundColor: '#64748B', borderTopLeftRadius: 390, borderTopRightRadius: 390, border: '10px dashed #CBD5E1', display: 'flex', justifyContent: 'center', paddingTop: 65, fontSize: 42, fontWeight: 'bold' }}>
-              قبة خرسانية مفرغة من الداخل
-            </div>
-            <div style={{ zIndex: 5, backgroundColor: '#B45309', padding: '36px 80px', borderRadius: 24, fontSize: 48, fontWeight: 'bold', border: '5px solid #F59E0B' }}>
-              🏛️ واجهة معبد أبو سمبل
-            </div>
-          </div>
-          <div style={{ position: 'absolute', bottom: 180, left: 40, right: 40, textAlign: 'center', fontSize: 46, color: '#E2E8F0', backgroundColor: 'rgba(0,0,0,0.6)', padding: '20px 30px', borderRadius: 20 }}>
-            تم ردمها بالرمال لتبدو كأنها جبل طبيعي 100%
-          </div>
-        </AbsoluteFill>
-      )}
-
-      {frame >= 1380 && (
-        <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(15, 23, 42, 0.92)' }}>
-          <div style={{ transform: `scale(${ctaPop})`, textAlign: 'center', padding: 50 }}>
-            <div style={{ fontSize: 140, marginBottom: 30 }}>🇪🇬✨</div>
-            <div style={{ fontSize: 68, fontWeight: 'bold', color: '#FBBF24', marginBottom: 40 }}>
-              أنقذوا التاريخ من الغرق!
-            </div>
-            <div style={{ fontSize: 52, backgroundColor: '#1E293B', padding: '36px 50px', borderRadius: 30, border: '5px solid #F59E0B' }}>
-              لو كنت مكانهم..<br />كنت هتحلها إزاي؟ 👇💬
-            </div>
-          </div>
-        </AbsoluteFill>
-      )}
+      {/* الجزء السفلي: شريط الترجمة الكحلي الاحترافي (24% من الشاشة) */}
+      <div style={{ height: 460, backgroundColor: '#111827', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '0 50px', textAlign: 'center' }}>
+        <div style={{ fontSize: 64, fontWeight: 900, lineHeight: 1.45, color: '#FFFFFF' }}>
+          {currentCap.normal}{' '}
+          <span style={{ color: '#FACC15' }}>{currentCap.highlight}</span>
+        </div>
+      </div>
     </AbsoluteFill>
   );
 };
