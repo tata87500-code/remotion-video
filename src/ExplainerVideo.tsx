@@ -1225,7 +1225,8 @@ export const ExplainerVideo: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: INK, overflow: "hidden" }}>
-      <Audio src={import { AbsoluteFill, Audio, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
+      <Audio src={staticFile("ElevenLabs_2026-11-20T11_27_48_Moataz Shaker - Deep_pvc_s45_sim75_v4.mp3")} volume={1} />
+      
  } volume={1} />
       <Sfx />
       <Background t={t} />
