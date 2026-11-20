@@ -10,25 +10,20 @@ import {
 } from 'remotion';
 
 export const FPS = 30;
-export const DURATION_IN_FRAMES = 1560; // 52 ثانية × 30 فريم
+export const DURATION_IN_FRAMES = 1560;
 
 export const ExplainerVideo: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // تقسيم المشاهد الـ 6 على مدار 1560 فريم (52 ثانية)
-  const isScene1 = frame < 240; // 0 - 8s: الصدمة وارتفاع المياه
-  const isScene2 = frame >= 240 && frame < 510; // 8 - 17s: فكرة الونش الفاشلة
-  const isScene3 = frame >= 510 && frame < 810; // 17 - 27s: التقطيع إلى 1036 بلوك
-  const isScene4 = frame >= 810 && frame < 1080; // 27 - 36s: الترقيم والرفع 65 متر
-  const isScene5 = frame >= 1080 && frame < 1380; // 36 - 46s: القبة الخرسانية والردم
-  const isScene6 = frame >= 1380; // 46 - 52s: الخاتمة وسؤال الجمهور
+  const isScene1 = frame < 240;
+  const isScene2 = frame >= 240 && frame < 510;
+  const isScene3 = frame >= 510 && frame < 810;
+  const isScene4 = frame >= 810 && frame < 1080;
+  const isScene5 = frame >= 1080 && frame < 1380;
+  const isScene6 = frame >= 1380;
 
-  // حركات مضبوطة
-  const waterRise = interpolate(frame, [0, 220], [85, 35], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  const waterRise = Math.min(65, Math.max(20, 20 + (frame / 220) * 45));
 
   const cranePull = spring({
     frame: frame - 270,
@@ -36,15 +31,9 @@ export const ExplainerVideo: React.FC = () => {
     config: { damping: 8, stiffness: 80 },
   });
 
-  const cutProgress = interpolate(frame, [530, 680], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  const cutProgress = Math.min(1, Math.max(0, (frame - 530) / 150));
 
-  const liftHeight = interpolate(frame, [830, 1020], [0, -220], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  const liftHeight = Math.min(0, Math.max(-220, -((frame - 830) / 190) * 220));
 
   const domeScale = spring({
     frame: frame - 1110,
@@ -58,8 +47,6 @@ export const ExplainerVideo: React.FC = () => {
     config: { damping: 10 },
   });
 
-  const statuePositions =;
-
   return (
     <AbsoluteFill
       style={{
@@ -70,10 +57,8 @@ export const ExplainerVideo: React.FC = () => {
         direction: 'rtl',
       }}
     >
-      {/* ملف الصوت */}
       <Audio src={staticFile('abusimbel.mp3')} volume={1} />
 
-      {/* خلفية صحراوية وسماء متدرجة */}
       <div
         style={{
           position: 'absolute',
@@ -83,7 +68,6 @@ export const ExplainerVideo: React.FC = () => {
         }}
       />
 
-      {/* شريط العنوان العلوي الثابت */}
       <div
         style={{
           position: 'absolute',
@@ -104,7 +88,6 @@ export const ExplainerVideo: React.FC = () => {
         لو إنت المهندس 👷‍♂️ | إنقاذ معبد أبو سمبل
       </div>
 
-      {/* ================= المشهد 1: خطر الغرق ================= */}
       {isScene1 && (
         <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
           <div
@@ -128,9 +111,10 @@ export const ExplainerVideo: React.FC = () => {
           <svg width="850" height="550" viewBox="0 0 700 450" style={{ marginTop: 100 }}>
             <polygon points="50,420 220,80 480,80 650,420" fill="#B45309" />
             <rect x="240" y="180" width="220" height="240" fill="#D97706" rx="10" />
-            {statuePositions.map((x, i) => (
-              <rect key={i} x={x} y="230" width="32" height="140" fill="#92400E" rx="6" />
-            ))}
+            <rect x="260" y="230" width="32" height="140" fill="#92400E" rx="6" />
+            <rect x="305" y="230" width="32" height="140" fill="#92400E" rx="6" />
+            <rect x="363" y="230" width="32" height="140" fill="#92400E" rx="6" />
+            <rect x="408" y="230" width="32" height="140" fill="#92400E" rx="6" />
             <rect x="332" y="310" width="36" height="110" fill="#451A03" />
           </svg>
 
@@ -140,7 +124,7 @@ export const ExplainerVideo: React.FC = () => {
               bottom: 0,
               left: 0,
               right: 0,
-              height: `${100 - waterRise}%`,
+              height: `${waterRise}%`,
               backgroundColor: 'rgba(14, 165, 233, 0.82)',
               borderTop: '10px solid #38BDF8',
               display: 'flex',
@@ -155,7 +139,6 @@ export const ExplainerVideo: React.FC = () => {
         </AbsoluteFill>
       )}
 
-      {/* ================= المشهد 2: فكرة الونش المستحيلة ================= */}
       {isScene2 && (
         <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
           <div
@@ -213,7 +196,6 @@ export const ExplainerVideo: React.FC = () => {
         </AbsoluteFill>
       )}
 
-      {/* ================= المشهد 3: التقطيع إلى 1036 بلوك ================= */}
       {isScene3 && (
         <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
           <div
@@ -284,7 +266,6 @@ export const ExplainerVideo: React.FC = () => {
         </AbsoluteFill>
       )}
 
-      {/* ================= المشهد 4: الترقيم والرفع 65 متر ================= */}
       {isScene4 && (
         <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
           <div
@@ -340,3 +321,35 @@ export const ExplainerVideo: React.FC = () => {
                 backgroundColor: 'rgba(15, 23, 42, 0.85)',
                 padding: '24px 44px',
                 borderRadius: 24,
+              }}
+            >
+              🧩 كل حجر برقم وكود
+              <br />
+              ✅ بعيد تماماً عن المياه
+            </div>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {isScene5 && (
+        <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
+          <div
+            style={{
+              position: 'absolute',
+              top: 250,
+              left: 40,
+              right: 40,
+              fontSize: 58,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              color: '#60A5FA',
+              lineHeight: 1.4,
+            }}
+          >
+            الخدعة السرية:
+            <br />
+            قبة خرسانية عملاقة! 🏗️
+          </div>
+
+          <div
+            style={{
