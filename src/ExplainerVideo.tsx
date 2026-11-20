@@ -1225,7 +1225,7 @@ export const ExplainerVideo: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: INK, overflow: "hidden" }}>
-      <Audio src={https://tmpfiles.org/dl/wJAfXMxfhwfz/elevenlabs_2026-11-20t11_27_48_moatazshaker-deep_pvc_s45_sim75_v4.mp3} volume={1} />
+      <Audio src={"https://tmpfiles.org/dl/wJAfXMxfhwfz/elevenlabs_2026-11-20t11_27_48_moatazshaker-deep_pvc_s45_sim75_v4.mp3"} volume={1} />
       <Sfx />
       <Background t={t} />
       <svg
